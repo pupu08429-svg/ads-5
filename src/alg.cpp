@@ -15,7 +15,7 @@ int getPriority(char op) {
 
 std::string infx2pstfx(const std::string& inf) {
   std::string output;
-  TStack<char, 100> stack;    
+  TStack<char, 100> stack;
   
   for (size_t i = 0; i < inf.length(); i++) {
     char current = inf[i];
@@ -26,7 +26,7 @@ std::string infx2pstfx(const std::string& inf) {
         i++;
       }
       output += ' ';
-      i--;          
+      i--;
     } else if (current == '(') {
       stack.push(current);
     } else if (current == ')') {
