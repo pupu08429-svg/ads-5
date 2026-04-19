@@ -1,7 +1,8 @@
 // Copyright 2025 NNTU-CS
+#include <string>
 #include <map>
 #include "tstack.h"
-#include <string>
+
 int checkPr(const char ch) {
   if (ch == '(')
     return 0;
@@ -61,7 +62,6 @@ std::string infx2pstfx(const std::string& inf) {
   }
   return res;
 }
-
 int eval(const std::string& pref) {
   TStack<int, 100> stack2;
   int res = 0, i = 0;
