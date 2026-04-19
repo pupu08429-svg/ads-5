@@ -1,10 +1,9 @@
 // Copyright 2025 NNTU-CS
-#include "alg.h"
 #include "tstack.h"
+
 #include <cctype>
 #include <map>
 #include <string>
-#include <iostream>
 
 int getPriority(char op) {
   std::map<char, int> priority = {
@@ -12,14 +11,11 @@ int getPriority(char op) {
   };
   return priority[op];
 }
-
 std::string infx2pstfx(const std::string& inf) {
   std::string output;
   TStack<char, 100> stack;
-  
   for (size_t i = 0; i < inf.length(); i++) {
     char current = inf[i];
-    
     if (isdigit(current)) {
       while (i < inf.length() && isdigit(inf[i])) {
         output += inf[i];
@@ -56,13 +52,11 @@ std::string infx2pstfx(const std::string& inf) {
   }
   return output;
 }
-
 int eval(const std::string& post) {
   TStack<int, 100> stack;
   
   for (size_t i = 0; i < post.length(); i++) {
     char current = post[i];
-    
     if (isdigit(current)) {
       int number = 0;
       while (i < post.length() && isdigit(post[i])) {
