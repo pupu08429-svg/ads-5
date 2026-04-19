@@ -3,7 +3,6 @@
 
 #include <cctype>
 #include <map>
-#include <string>
 
 int getPriority(char op) {
   std::map<char, int> priority = {
@@ -54,7 +53,6 @@ std::string infx2pstfx(const std::string& inf) {
 }
 int eval(const std::string& post) {
   TStack<int, 100> stack;
-  
   for (size_t i = 0; i < post.length(); i++) {
     char current = post[i];
     if (isdigit(current)) {
