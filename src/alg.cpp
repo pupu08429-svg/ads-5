@@ -1,6 +1,7 @@
+// Copyright 2025 NNTU-CS
 #include <map>
 #include "tstack.h"
-
+#include <string>
 int checkPr(const char ch) {
   if (ch == '(')
     return 0;
