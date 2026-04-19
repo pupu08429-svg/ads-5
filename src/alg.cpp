@@ -1,4 +1,5 @@
 // Copyright 2025 NNTU-CS
+#include "alg.h"
 #include "tstack.h"
 #include <cctype>
 #include <map>
@@ -36,11 +37,10 @@ std::string infx2pstfx(const std::string& inf) {
       if (!stack.isEmpty() && stack.top() == '(') {
         stack.pop();
       }
-    }
-    else if (current == '+' || current == '-' ||
+    } else if (current == '+' || current == '-' ||
     current == '*' || current == '/') {
       while (!stack.isEmpty() && stack.top() != '(' &&
-      getPriority(stack.top()) >= getPriority(current)) {
+             getPriority(stack.top()) >= getPriority(current)) {
         output += stack.popAndGet();
         output += ' ';
       }
@@ -57,7 +57,7 @@ std::string infx2pstfx(const std::string& inf) {
   return output;
 }
 
-int eval(const std::string& pref) {
+int eval(const std::string& post) {
   TStack<int, 100> stack;
   
   for (size_t i = 0; i < post.length(); i++) {
@@ -66,13 +66,13 @@ int eval(const std::string& pref) {
     if (isdigit(current)) {
       int number = 0;
       while (i < post.length() && isdigit(post[i])) {
-        number = number * 10 + (post[i] - '0');
+             number = number * 10 + (post[i] - '0');
         i++;
       }
       stack.push(number);
       i--;
     } else if (current == '+' || current == '-' ||
-      current == '*' || current == '/') {
+               current == '*' || current == '/') {
       int b = stack.popAndGet();
       int a = stack.popAndGet();
       int result = 0;
