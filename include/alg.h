@@ -4,7 +4,7 @@
 
 #include <string>
 
-std::string infx2pstfx(std::string& inf);
-int eval(std::string& post);
+std::string infx2pstfx(std::string);
+int eval(std::string);
 
 #endif  // INCLUDE_ALG_H_
