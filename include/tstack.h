@@ -21,27 +21,22 @@ public:
     return topIndex == Nsize - 1;
   }
   void push(const T& value) {
-    assert(!isFull() && "Stack overflow!");
-    data[++topIndex] = value;
+    if (!isFull()) {
+      data[++topIndex] = value;
   }
   void pop() {
-    assert(!isEmpty() && "Stack underflow!");
+    if (!isEmpty()) {
     --topIndex;
   }
   T top() const {
-    assert(!isEmpty() && "Stack is empty!");
     return data[topIndex];
   }
-  T popAndGet() {
-    assert(!isEmpty() && "Stack underflow!");
+  T pop() {
     return data[topIndex--];
-  }
-  void clear() {
-    topIndex = -1;
   }
   int getsize() const {
     return topIndex + 1;
   }
 };
 
-#endif  // INCLUDE_TSTACK_H_
+#endif
