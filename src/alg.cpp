@@ -1,27 +1,23 @@
 // Copyright 2025 NNTU-CS
-#include "alg.h"
-#include <map>
 #include "tstack.h"
 
+#include <map>
 #include <string>
-
 
 int getPriority(char op) {
   std::map<char, int> priority = {
-    {'(', 0},
-    {')', 1},
-    {'+', 2},
-    {'-', 2},
-    {'*', 3},
-    {'/', 3}
+    {'(', 0}, {')', 1}, {'+', 2}, {'-', 2}, {'*', 3}, {'/', 3}
   };
   return priority[op];
 }
-std::string infx2pstfx(const std::string inf) {
+
+std::string infx2pstfx(std::string inf) {
   std::string output;
   TStack<char, 100> stack;
+
   for (size_t i = 0; i < inf.length(); i++) {
     char current = inf[i];
+
     if (current >= '0' && current <= '9') {
       while (i < inf.length() && inf[i] >= '0' && inf[i] <= '9') {
         output += inf[i];
@@ -33,7 +29,7 @@ std::string infx2pstfx(const std::string inf) {
       stack.push(current);
     } else if (current == ')') {
       while (!stack.isEmpty() && stack.top() != '(') {
-        output += stack.popAndGet();
+        output += stack.top();
         output += ' ';
         stack.pop();
       }
@@ -44,49 +40,59 @@ std::string infx2pstfx(const std::string inf) {
                current == '*' || current == '/') {
       while (!stack.isEmpty() && stack.top() != '(' &&
              getPriority(stack.top()) >= getPriority(current)) {
-        output += stack.popAndGet();
+        output += stack.top();
         output += ' ';
         stack.pop();
       }
       stack.push(current);
     }
   }
+
   while (!stack.isEmpty()) {
-    output += stack.pop();
+    output += stack.top();
     if (stack.getSize() != 1) {
       output += ' ';
     }
     stack.pop();
   }
+
   return output;
 }
-int eval(const std::string post) {
+
+int eval(std::string post) {
   TStack<int, 100> stack;
+
   for (size_t i = 0; i < post.length(); i++) {
     char current = post[i];
+
     if (current >= '0' && current <= '9') {
       int number = 0;
       while (i < post.length() && post[i] >= '0' && post[i] <= '9') {
-             number = number * 10 + (post[i] - '0');
+        number = number * 10 + (post[i] - '0');
         i++;
       }
       stack.push(number);
       i--;
     } else if (current == '+' || current == '-' ||
                current == '*' || current == '/') {
-      int b = stack.pop();
+      int b = stack.top();
       stack.pop();
-      int a = stack.pop();
+      int a = stack.top();
       stack.pop();
       int result = 0;
-      if (current == '+') result = a + b;
-        else if '+': result = a + b; break;
-        else if '-': result = a - b; break;
-        else if '*': result = a * b; break;
-        else if '/': result = a / b; break;
+
+      if (current == '+') {
+        result = a + b;
+      } else if (current == '-') {
+        result = a - b;
+      } else if (current == '*') {
+        result = a * b;
+      } else if (current == '/') {
+        result = a / b;
       }
+
       stack.push(result);
     }
   }
-  return stack.pop();
+  return stack.top();
 }
