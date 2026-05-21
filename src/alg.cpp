@@ -1,108 +1,127 @@
 // Copyright 2025 NNTU-CS
 #include <string>
-#include <map>
+#include <cctype>
 #include "tstack.h"
 
-int checkPr(const char ch) {
-  if (ch == '(')
-    return 0;
-  else if (ch == ')')
-    return 1;
-  else if (ch == '+' || ch == '-')
-    return 2;
-  else if (ch == '*' || ch == '/')
-    return 3;
-  else
-    throw "Incorrect character";
+int getPriority(char op) {
+  switch (op) {
+    case '(':
+      return 0;
+    case ')':
+      return 1;
+    case '+':
+    case '-':
+      return 2;
+    case '*':
+    case '/':
+      return 3;
+    default:
+      return -1;
+  }
 }
 
-std::string infx2pstfx(const std::string& inf) {
-  TStack<char, 100> stack1;
-  int i = 0;
-  std::string res;
-  while (i < inf.length()) {
-    if (inf[i] >= '0' && inf[i] <= '9') {
-      while (inf[i] >= '0' && inf[i] <= '9') {
-        res += inf[i];
-        i++;
+std::string infx2pstfx(const std::string& infix) {
+  TStack<char, 100> operators;
+  std::string postfix;
+  size_t idx = 0;
+
+  while (idx < infix.length()) {
+    char current = infix[idx];
+
+    if (isdigit(current)) {
+      while (idx < infix.length() && isdigit(infix[idx])) {
+        postfix += infix[idx];
+        ++idx;
       }
-      res += ' ';
+      postfix += ' ';
       continue;
-      }
-    if (checkPr(inf[i]) == 0) {
-      stack1.push(inf[i]);
-    } else if (checkPr(inf[i]) == 1) {
-      while (!stack1.isEmpty() && checkPr(stack1.get()) != 0) {
-        res += stack1.get();
-        res += ' ';
-        stack1.pop();
-      }
-      stack1.pop();
-    } else if (checkPr(inf[i]) > 1) {
-      if (stack1.isEmpty() || checkPr(inf[i]) > checkPr(stack1.get())) {
-        stack1.push(inf[i]);
-      } else {
-        while (!stack1.isEmpty() &&
-          stack1.get() != '('
-          && checkPr(inf[i]) <= checkPr(stack1.get())) {
-          res += stack1.get();
-          res += ' ';
-          stack1.pop();
-        }
-        stack1.push(inf[i]);
-      }
     }
-    i++;
+
+    int priority = getPriority(current);
+
+    if (priority == 0) {          // Открывающая скобка
+      operators.push(current);
+    } else if (priority == 1) {   // Закрывающая скобка
+      while (!operators.isEmpty() && getPriority(operators.get()) != 0) {
+        postfix += operators.get();
+        postfix += ' ';
+        operators.pop();
+      }
+      operators.pop();            // Удаляем '('
+    } else if (priority > 1) {    // Оператор
+      while (!operators.isEmpty() &&
+             operators.get() != '(' &&
+             getPriority(operators.get()) >= priority) {
+        postfix += operators.get();
+        postfix += ' ';
+        operators.pop();
+      }
+      operators.push(current);
+    }
+    ++idx;
   }
-  while (!stack1.isEmpty()) {
-    res += stack1.get();
-    if (stack1.getSize() != 1)
-      res += ' ';
-    stack1.pop();
+
+  while (!operators.isEmpty()) {
+    postfix += operators.get();
+    if (operators.getSize() != 1) {
+      postfix += ' ';
+    }
+    operators.pop();
   }
-  return res;
+
+  return postfix;
 }
-int eval(const std::string& pref) {
-  TStack<int, 100> stack2;
-  int res = 0, i = 0;
-  while (i < pref.length()) {
-    if (pref[i] >= '0' && pref[i] <= '9') {
-      std::string num;
-      while (pref[i] != ' ') {
-        num += pref[i];
-        i++;
+
+// Вычисление значения постфиксного выражения
+int eval(const std::string& postfix) {
+  TStack<int, 100> values;
+  size_t pos = 0;
+
+  while (pos < postfix.length()) {
+    char symbol = postfix[pos];
+
+    // Если встретили цифру - собираем число
+    if (isdigit(symbol)) {
+      std::string number;
+      while (pos < postfix.length() && postfix[pos] != ' ') {
+        number += postfix[pos];
+        ++pos;
       }
-      i++;
-      stack2.push(std::stoi(num));
+      values.push(std::stoi(number));
+      ++pos;                     // Пропускаем пробел
       continue;
     }
-    if (pref[i] == '+') {
-      res = stack2.get();
-      stack2.pop();
-      res += stack2.get();
-      stack2.pop();
-      stack2.push(res);
-    } else if (pref[i] == '-') {
-      res = stack2.get();
-      stack2.pop();
-      res = stack2.get() - res;
-      stack2.pop();
-      stack2.push(res);
-    } else if (pref[i] == '*') {
-      res = stack2.get();
-      stack2.pop();
-      res *= stack2.get();
-      stack2.pop();
-      stack2.push(res);
-    } else if (pref[i] == '/') {
-      res = stack2.get();
-      stack2.pop();
-      res = stack2.get() / res;
-      stack2.pop();
-      stack2.push(res);
+
+    // Обработка операторов
+    if (symbol == '+' || symbol == '-' || symbol == '*' || symbol == '/') {
+      int rightVal = values.get();
+      values.pop();
+      int leftVal = values.get();
+      values.pop();
+
+      int result = 0;
+      switch (symbol) {
+        case '+':
+          result = leftVal + rightVal;
+          break;
+        case '-':
+          result = leftVal - rightVal;
+          break;
+        case '*':
+          result = leftVal * rightVal;
+          break;
+        case '/':
+          result = leftVal / rightVal;
+          break;
+        default:
+          break;
+      }
+      values.push(result);
+      pos += 2;                  // Пропускаем оператор и пробел
+    } else {
+      ++pos;                     // Пропускаем пробел
     }
-    res = 0;
-    i += 2;
   }
-  return stack2.get();
+
+  return values.get();
 }
